@@ -1,2 +1,2 @@
-# C_pro
+# C
 C programming guide
