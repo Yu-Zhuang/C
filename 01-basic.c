@@ -1,5 +1,7 @@
+//import header file
 #include<stdio.h>
 #include<stdlib.h>
+//start 
 int main(void){
 	//variable announce
 	int a=0, b=3; //interger, 4 byte, -2147483648 ~ +2147483648 (2^32);
@@ -13,5 +15,12 @@ int main(void){
 	scanf("%d %f %lf %c %s", &a, &c, &d, &e, f); //input
 	printf("new: %d %f %lf %c %s", a, c, d, e, f); //output (after input new value);
 	
+	//operator and compution
+	a=a+2; //+, -, *, /
+	printf("%d", a); // output: 4
+	a-=3; // +=, -=, *=, /=
+	printf("%d", a); //output: 1
+
+//end;
 	return 0;
 }
