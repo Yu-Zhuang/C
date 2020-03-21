@@ -1,14 +1,19 @@
 #include<stdio.h>
 #include<stdlib.h>
-
-// returnType functionName (argumentType argument);
+/*
+include:
+1. flow control: if, else if, else, switch case;
+2. loop: while(), for();
+3. funciton;
+*/
+// function: returnType functionName (argumentType argument);
 int HiFunction(int N);
 
 int main(void){
 	int a=0, flag=1, N=0;
 
-//flow control project:
-	while(flag){ //while loop;
+//while loop;
+	while(flag){ 
 		printf("enter a number between 1~9(end enter 0): ");
 		scanf("%d", &a);
 		// operator: >, <, ==, <=, >=, &&, ||
