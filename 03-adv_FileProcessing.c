@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
-
+/*
+1: file processing: read file, add new element to file, rewrite file;
+*/
 void ReadFile(char *file);
 void ReWrite(char *file, char *element);
 void Add(char *file, char *element);
