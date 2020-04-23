@@ -256,3 +256,252 @@ void FILE_PUT(){
 	fclose(ftxt);
 	fclose(fptr);
 }
+/*
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+// define string max size
+#define MAX 100
+// define data type
+typedef struct p{
+    int n;
+    char name[MAX];
+    char id[MAX];
+    double height, weight, bmi;
+}PERSON;
+// function announcement
+int FILE_PUT();
+void FILE_PRINT();
+bool FILE_FIND(int n);
+void FILE_UH_PRINT();
+void FILE_ADD();
+void FILE_UPDATE();
+void FILE_DELET();
+void FILE_REPUT();
+void FIND();
+// main
+int main(void){
+    int flag=1, run=0;
+    run=FILE_PUT(); // write to .dat success or not?
+    while(flag&&run){  
+        start:
+        printf("\t@主選單@\n(1)顯示國民\n(2)尋找國民\n(3)印出不健康國民\n(4)新增國民\n(5)編輯國民\n(6)刪除國民\n(7)存回txt檔\n(0)結束程式\n請輸入選擇: ");
+        scanf("%d", &flag);
+        // FPD
+        while(flag<0||flag>7) {printf("err: 輸入錯誤!\n"); goto start; }
+        switch(flag){
+            case 1: FILE_PRINT(); break;
+            case 2: FIND(); break;
+            case 3: FILE_UH_PRINT(); break;
+            case 4: FILE_ADD(); break;
+            case 5: FILE_UPDATE(); break;
+            case 6: FILE_DELET(); break;
+            case 7: FILE_REPUT(); break;
+            default: break;
+        }
+
+    }
+    // if not sucess 
+    if(!run) printf("can't open file\n");
+    return 0;
+}
+void FIND(){
+    int input=0;
+    printf("輸入欲搜尋國民: ");
+    scanf("%d", &input);
+    FILE_FIND(input);
+}
+void FILE_REPUT(){
+    FILE *ptmp = fopen("./BMI1.txt","w");
+    if(!ptmp) printf("can't open file\n");
+    else{
+        fclose(ptmp);
+        FILE *ptxt = fopen("./BMI1.txt","a");
+        FILE *pdat = fopen("./BMI1.dat", "rb+");
+        if(! pdat || !ptxt) printf("can't open file.\n");
+        else{
+            char str1[]="國人體重資訊\n----------------------------------\n";
+            fputs(str1, ptxt);
+
+            int list[MAX]={0};
+            PERSON p={0,"","",0,0,0};
+            while( !feof(pdat) ){
+                fread(&p,sizeof(PERSON), 1,pdat);
+                if(p.n>0){
+                    list[p.n]++;
+                }
+            }
+            rewind(pdat);
+            for(int i=0;i<MAX;i++){
+                if(list[i]){
+                    while( !feof(pdat) ){
+                        fread(&p,sizeof(PERSON), 1,pdat);
+                        if(p.n==i){
+                            fprintf(ptxt, "%d\t%s\t%s\t%.1lf\t%.1lf\t%.1lf\n", p.n, p.name, p.id, p.height, p.weight, p.bmi);
+                            break;
+                        }
+                    }
+                    rewind(pdat);      
+                }
+            }             
+        }
+        fclose(pdat);
+        fclose(ptxt);    
+    }
+    return;
+}
+void FILE_DELET(){
+    FILE *pdat = fopen("./BMI1.dat", "rb+");
+    FILE *pdel = fopen("./deleted.txt","a");
+    if(! pdat || !pdel) printf("can't open file.\n");
+    else{
+        int n=0;
+        printf("請輸入欲刪除編號: "); scanf("%d", &n);
+        if( ! FILE_FIND(n)) printf("無此編號\n");
+        else{
+            int tmp=0;
+            printf("確定要刪? 1確定 0不刪: "); scanf("%d", &tmp);
+            if(tmp){
+                PERSON p={0,"","",0,0,0};
+                int site=0;
+                while( !feof(pdat)){
+                    fread(&p, sizeof(PERSON), 1, pdat);
+                    if(p.n==n){
+                        fprintf(pdel,"\n%d %s %s %.1lf %.1lf %.1lf", p.n, p.name, p.id, p.height, p.weight, p.bmi);
+                        break;
+                    }
+                    site++;
+                }
+                rewind(pdat);
+                fseek(pdat, (site)*sizeof(PERSON), SEEK_SET);
+                PERSON empty={0,"","",0,0,0};
+                fwrite(&empty, sizeof(PERSON), 1, pdat);
+            }
+        }
+    }
+    fclose(pdat);
+    fclose(pdel);   
+}
+void FILE_UPDATE(){
+    FILE *pdat = fopen("./BMI1.dat", "rb+");
+    if(! pdat) printf("can't open file.\n");
+    else{
+        int n=0;
+        
+        printf("請輸入欲編輯: "); scanf("%d", &n);
+        if( ! FILE_FIND(n)) printf("無此編號\n");
+        else{
+            PERSON p={0,"","",0,0,0};
+            int site=0;
+            while( !feof(pdat)){
+                fread(&p, sizeof(PERSON), 1, pdat);
+                if(p.n==n) break;
+                site++;
+            }
+            rewind(pdat);
+            fseek(pdat, (site)*sizeof(PERSON), SEEK_SET);
+            printf("新 姓名 身分證號 身高 體重: "); 
+            scanf("%s %s %lf %lf", p.name, p.id, &p.height, &p.weight);
+            p.n=n;
+            p.bmi = p.weight / p.height / p.height * 10000;
+            fwrite(&p, sizeof(PERSON), 1, pdat);
+        }        
+    }
+    fclose(pdat);   
+}
+void FILE_ADD(){
+    FILE *pdat = fopen("./BMI1.dat", "ab");
+    if(! pdat) printf("can't open file.\n");
+    else{
+        int n=0;
+        PERSON p={0,"","",0,0,0};
+        printf("請輸入欲增加編號: "); scanf("%d", &n);
+        if(n==0 || FILE_FIND(n)) printf("此編號不可使用\n");
+        else{
+            printf("請依序輸入 姓名 身分證號 身高 體重: "); 
+            scanf("%s %s %lf %lf", p.name, p.id, &p.height, &p.weight);
+            p.n=n;
+            p.bmi = p.weight / p.height / p.height * 10000;
+            fwrite(&p, sizeof(PERSON),1, pdat);
+        }
+    }
+    fclose(pdat);
+}
+bool FILE_FIND(int n){
+    FILE *pdat = fopen("./BMI1.dat", "rb");
+    int flag=0;
+    if(! pdat) printf("can't open file.\n");
+    else{
+        while(! feof(pdat)){
+            PERSON p={0,"","",0,0,0};
+            fread(&p, sizeof(PERSON), 1, pdat);
+            // 如果 找到 就顯示
+            if(p.n == n){
+                printf("%d\t%s\t%s\t%.1lf\t%.1lf\t%.1lf\n", p.n, p.name, p.id, p.height, p.weight, p.bmi);
+                flag=1;
+                break;
+            }
+        }        
+    }
+    fclose(pdat);     
+    if(flag) return true; 
+    return false;
+}
+void FILE_UH_PRINT(){
+    FILE *pdat = fopen("./BMI1.dat", "rb");
+    if(! pdat) printf("can't open file.\n");
+    else{
+        while(! feof(pdat)){
+            PERSON p={0,"","",0,0,0};
+            // 讀取 dat資料
+            fread(&p, sizeof(PERSON), 1, pdat);
+            // 如果 超出健康 range 顯示該資料
+            if(p.n>0&& (p.bmi>=24||p.bmi<18.5)) printf("%d\t%s\t%s\t%.1lf\t%.1lf\t%.1lf\n", p.n, p.name, p.id, p.height, p.weight, p.bmi);
+        }        
+    }
+    fclose(pdat);   
+}
+void FILE_PRINT(){
+    FILE *pdat = fopen("./BMI1.dat", "rb");
+    if(! pdat) printf("can't open file.\n"); 
+    else{
+        while(! feof(pdat)){
+            PERSON p={0,"","",0,0,0};
+            // 讀取 dat資料
+            fread(&p, sizeof(PERSON), 1, pdat);
+            // 印出
+            if(p.n>0) printf("%d\t%s\t%s\t%.1lf\t%.1lf\t%.1lf\n", p.n, p.name, p.id, p.height, p.weight, p.bmi);
+        }        
+    }
+    fclose(pdat);
+}
+// 將txt檔 存回 txt檔
+int FILE_PUT(){
+    FILE *ptxt = fopen("./BMI1.txt","r");
+    FILE *pdat = fopen("./BMI1.dat", "wb");
+    //  如果開失敗 return 回去
+    if(!ptxt || !pdat){
+        printf("\terr: file can't open!\n");
+        fclose(ptxt);
+        fclose(pdat);        
+        return 0;
+    // 開成功
+    }else{
+        char tmp[MAX];
+        // 將前兩行不需要的讀掉
+        for(int i=0;i<2;i++) fscanf(ptxt, "%s", tmp);
+        //  開始將資料 讀進 dat檔
+        while( ! feof(ptxt)){
+            PERSON p={0,"","",0,0,0};
+            //  從txt檔 資料
+            fscanf(ptxt, "%d %s %s %lf %lf %lf", &p.n, p.name, p.id, &p.height, &p.weight, &p.bmi );
+            //  將資料 寫入 dat檔
+            if(p.n>0) fwrite(&p, sizeof(PERSON), 1 ,pdat);
+        }    
+    }
+    fclose(ptxt);
+    fclose(pdat);
+    return 1;
+}
+
+*/
