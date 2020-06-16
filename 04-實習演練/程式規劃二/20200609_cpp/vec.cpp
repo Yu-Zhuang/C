@@ -23,7 +23,7 @@ void VEC_DOT(double *v1, double *v2, double *ret){
 void VEC_NORM(double *v1, double *v2, double *ret){
 	ret[0] = 0;
 	for(int i=0;i<5;i++)
-		ret[0] = (v1[i]-v2[i]) * (v1[i]-v2[i]);
+		ret[0] += (v1[i]-v2[i]) * (v1[i]-v2[i]);
 	ret[0] = sqrt(ret[0]);  // 兩向量 距離
 }
 
